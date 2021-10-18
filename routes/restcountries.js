@@ -12,6 +12,10 @@ router.get("/name/:country", function (req, res, next) {
   let country = [];
   country.push(countriesData.find((x) => x.name === req.params.country));
 
+  if (country[0] === undefined) {
+    country = { error: "No country found." };
+  }
+
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(country));
 });

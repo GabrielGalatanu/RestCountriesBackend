@@ -1,43 +1,42 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var express = require("express");
+var router = express.Router();
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var restcountriesRouter = require('./routes/restcountries');
-
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', restcountriesRouter);
-app.use('/users', usersRouter);
-
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+const countriesData = require("../resources/data.json");
+/* Returns all countries data */
+router.get("/all", function (req, res, next) {
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(countriesData));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+router.get("/name/:country", function (req, res, next) {
+  let country = [];
+  country.push(countriesData.find((x) => x.name === req.params.country));
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  if (country[0] === undefined) {
+    country = { error: "No country found." };
+  }
+
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(country));
 });
 
-module.exports = app;
+router.get("/alpha/:alpha", function (req, res, next) {
+  let country;
+  if (req.params.alpha.length === 3) {
+    country = countriesData.find((x) => x.alpha3Code === req.params.alpha);
+  } else {
+    country = countriesData.find((x) => x.alpha2Code === req.params.alpha);
+  }
+
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(country));
+});
+
+router.get("/continent/:region", function (req, res, next) {
+  let country = countriesData.filter((x) => x.region === req.params.region);
+
+  res.setHeader("Content-Type", "application/json");
+  res.end(JSON.stringify(country));
+});
+
+module.exports = router;
