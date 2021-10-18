@@ -1,42 +1,26 @@
+var createError = require("http-errors");
 var express = require("express");
-var router = express.Router();
 
-const countriesData = require("../resources/data.json");
-/* Returns all countries data */
-router.get("/all", function (req, res, next) {
-  res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(countriesData));
+var restcountriesRouter = require("./routes/restcountries");
+
+var app = express();
+
+app.use("/", restcountriesRouter);
+
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(createError(404));
 });
 
-router.get("/name/:country", function (req, res, next) {
-  let country = [];
-  country.push(countriesData.find((x) => x.name === req.params.country));
+// error handler
+app.use(function (err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  if (country[0] === undefined) {
-    country = { error: "No country found." };
-  }
-
-  res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(country));
+  // render the error page
+  res.status(err.status || 500);
+  res.render("error");
 });
 
-router.get("/alpha/:alpha", function (req, res, next) {
-  let country;
-  if (req.params.alpha.length === 3) {
-    country = countriesData.find((x) => x.alpha3Code === req.params.alpha);
-  } else {
-    country = countriesData.find((x) => x.alpha2Code === req.params.alpha);
-  }
-
-  res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(country));
-});
-
-router.get("/continent/:region", function (req, res, next) {
-  let country = countriesData.filter((x) => x.region === req.params.region);
-
-  res.setHeader("Content-Type", "application/json");
-  res.end(JSON.stringify(country));
-});
-
-module.exports = router;
+module.exports = app;
