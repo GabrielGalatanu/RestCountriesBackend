@@ -39,4 +39,23 @@ router.get("/continent/:region", function (req, res, next) {
   res.end(JSON.stringify(country));
 });
 
+router.get("/flag/:alpha", function (req, res, next) {
+  let fileName = "countryFlags/AD.png";
+
+  res.set({ "Content-Type": "image/png" });
+  res.send(fileName);
+  // var options = {
+  //   root: path.join('countryFlags'),
+  // };
+
+  // var fileName = "RO.png";
+  // res.sendFile(fileName, options, function (err) {
+  //   if (err) {
+  //     next(err);
+  //   } else {
+  //     console.log("Sent:", fileName);
+  //   }
+  // });
+});
+
 module.exports = router;
